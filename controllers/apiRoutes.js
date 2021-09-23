@@ -6,7 +6,7 @@ const db = require("../models");
 router.get("/workouts", async (req, res) => {
   try {
     // Get all workouts in database and return as JSON
-    const workouts = await db.Workouts.find({});
+    const workouts = await db.Workout.find({});
     res.json(workouts);
   } catch (err) {
     console.log(err);
@@ -14,8 +14,27 @@ router.get("/workouts", async (req, res) => {
 });
 
 router.post("/workouts", async (req, res) => {
-  //What is this supposed to do?!?
-  console.log("workout POST ", req.body);
+  try {
+    // Create a new workout in the database
+    const newWorkout = await db.Workout.create(req.body);
+    res.json(newWorkout);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.put("/workouts/:id", async (req, res) => {
+  // Update an existing workout in the database
+  try {
+    const updatedWorkout = await db.Workout.findByIdAndUpdate(
+      req.params.id,
+      { $push: { exercises: req.body.data } },
+      { new: true } // Return the updated workout so it can be sent back to the client
+    );
+    res.json(updatedWorkout);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 router.get("/workouts/range", async (req, res) => {
@@ -31,7 +50,6 @@ router.get("/workouts/range", async (req, res) => {
         },
       },
     ]);
-    console.log(workoutAggregation);
     return res.json(workoutAggregation);
   } catch (err) {
     console.log(err);
